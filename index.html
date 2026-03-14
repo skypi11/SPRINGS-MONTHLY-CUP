@@ -12,15 +12,16 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         
         // ⚠️ CONFIGURATION FIREBASE - REMPLACEZ PAR VOS PROPRES VALEURS
-        const firebaseConfig = {
-            apiKey: "VOTRE_API_KEY",
-            authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://VOTRE_PROJECT_ID.firebaseio.com",
-            projectId: "VOTRE_PROJECT_ID",
-            storageBucket: "VOTRE_PROJECT_ID.appspot.com",
-            messagingSenderId: "VOTRE_MESSAGING_ID",
-            appId: "VOTRE_APP_ID"
-        };
+       const firebaseConfig = {
+  apiKey: "AIzaSyBx4Goq8VR1I2MFf9L2wJm2TBaV-l_cCps",
+  authDomain: "monthly-cup.firebaseapp.com",
+  databaseURL: "https://monthly-cup-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "monthly-cup",
+  storageBucket: "monthly-cup.firebasestorage.app",
+  messagingSenderId: "82527508810",
+  appId: "1:82527508810:web:ca14ebfdeffb24d09889b3",
+  measurementId: "G-XR2XW0794M"
+};
         
         // Initialisation Firebase
         const app = initializeApp(firebaseConfig);
