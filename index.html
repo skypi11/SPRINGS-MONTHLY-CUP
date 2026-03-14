@@ -12,16 +12,15 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         
         // ⚠️ CONFIGURATION FIREBASE - REMPLACEZ PAR VOS PROPRES VALEURS
-       const firebaseConfig = {
-  apiKey: "AIzaSyBx4Goq8VR1I2MFf9L2wJm2TBaV-l_cCps",
-  authDomain: "monthly-cup.firebaseapp.com",
-  databaseURL: "https://monthly-cup-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "monthly-cup",
-  storageBucket: "monthly-cup.firebasestorage.app",
-  messagingSenderId: "82527508810",
-  appId: "1:82527508810:web:ca14ebfdeffb24d09889b3",
-  measurementId: "G-XR2XW0794M"
-};
+        const firebaseConfig = {
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://VOTRE_PROJECT_ID.firebaseio.com",
+            projectId: "VOTRE_PROJECT_ID",
+            storageBucket: "VOTRE_PROJECT_ID.appspot.com",
+            messagingSenderId: "VOTRE_MESSAGING_ID",
+            appId: "VOTRE_APP_ID"
+        };
         
         // Initialisation Firebase
         const app = initializeApp(firebaseConfig);
@@ -488,6 +487,11 @@
         <header>
             <h1>🏆 Trackmania Cup Manager</h1>
             <p class="subtitle">Gestion complète de vos compétitions Trackmania avec historique et statistiques</p>
+            <div class="export-import-section">
+                <button class="btn btn-success btn-small" onclick="exportData()">💾 Exporter les données (JSON)</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="btn btn-primary btn-small" onclick="document.getElementById('importFile').click()">📥 Importer des données</button>
+            </div>
         </header>
 
         <div class="tabs">
@@ -754,13 +758,50 @@
             localStorage.setItem('tmCupData', JSON.stringify(data));
         }
         
-        // Modified save function to use Firebase if available
-        function saveAllData() {
-            if (currentUser) {
-                saveDataToFirebase();
-            } else {
-                saveData();
-            }
+        // Export data to JSON file
+        function exportData() {
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `trackmania-cup-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            alert('✅ Données exportées avec succès !');
+        }
+
+        // Import data from JSON file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!importedData.participants || !importedData.editions || !importedData.results) {
+                        throw new Error('Format invalide');
+                    }
+                    
+                    if (confirm('⚠️ Importer remplacera toutes vos données actuelles. Continuer ?')) {
+                        data = importedData;
+                        saveData();
+                        displayParticipants();
+                        displayEditions();
+                        updateSelectors();
+                        displayStats();
+                        displayResultsEditionSelector();
+                        displayResults();
+                        alert('✅ Données importées avec succès !');
+                    }
+                } catch (error) {
+                    alert('❌ Erreur : fichier invalide.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         // Tab switching
@@ -803,7 +844,7 @@
                 team: team || 'Sans équipe'
             });
             
-            saveAllData();
+            saveData();
             displayParticipants();
             updateSelectors();
             displayStats();
@@ -845,7 +886,7 @@
             
             data.participants = data.participants.filter(p => p.id !== id);
             data.results = data.results.filter(r => r.playerId !== id);
-            saveAllData();
+            saveData();
             displayParticipants();
             updateSelectors();
             displayStats();
@@ -864,7 +905,7 @@
                 date: date
             });
             
-            saveAllData();
+            saveData();
             displayEditions();
             updateSelectors();
             displayStats();
@@ -909,7 +950,7 @@
             
             data.editions = data.editions.filter(e => e.id !== id);
             data.results = data.results.filter(r => r.editionId !== id);
-            saveAllData();
+            saveData();
             displayEditions();
             updateSelectors();
             displayStats();
@@ -956,7 +997,7 @@
                 points: points
             });
             
-            saveAllData();
+            saveData();
             displayResults();
             displayStats();
             e.target.reset();
@@ -1048,7 +1089,7 @@
             if (!confirm('Supprimer ce résultat ?')) return;
             
             data.results = data.results.filter(r => r.id !== id);
-            saveAllData();
+            saveData();
             displayResults();
             displayStats();
         }
@@ -1155,19 +1196,16 @@
             container.innerHTML = html;
         }
 
-        // Initialize (wait for auth state)
-        setTimeout(() => {
-            if (!currentUser) {
-                loadData();
-                displayParticipants();
-                displayEditions();
-                updateSelectors();
-                displayStats();
-                displayResultsEditionSelector();
-            }
-        }, 1000);
+        // Initialize
+        loadData();
+        displayParticipants();
+        displayEditions();
+        updateSelectors();
+        displayStats();
+        displayResultsEditionSelector();
         
-        console.log('Application initialisée avec Firebase');
+        console.log('✅ Application initialisée (localStorage uniquement)');
     </script>
 </body>
 </html>
+
